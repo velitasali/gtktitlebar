@@ -1,0 +1,10 @@
+{
+    "name": "GTK Title Bar",
+    "description": "Remove title bars for non-GTK apps with minimal interference with the default workflow",
+    "uuid": "gtktitlebar@velitasali.github.io",
+    "shell-version": [
+        "3.28.0",
+        "3.30.0",
+        "3.32.0"
+    ]
+}
