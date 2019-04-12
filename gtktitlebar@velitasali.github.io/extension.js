@@ -8,28 +8,28 @@ var GTKTitleBarOnlyExtension = new Lang.Class({
 
 	_init() {
 		this._windowDecoration = new WindowDecoration();
-		global.log("GTKTitleBar: extension loaded");
+		//global.log("GTKTitleBar: extension loaded");
 	},
 
 	destroy() {
 		this._windowDecoration.destroy();
-		global.log("GTKTitleBar: extension destroyed");
+		//global.log("GTKTitleBar: extension destroyed");
 	}
 });
 
 let gtkTitleBarOnlyExtension;
 
 function init() {
-	global.log("GTKTitleBar: initialized");
+	//global.log("GTKTitleBar: initialized");
 }
 
 function enable() {
 	gtkTitleBarOnlyExtension = new GTKTitleBarOnlyExtension();
-	global.log("GTKTitleBar: enabled");
+	//global.log("GTKTitleBar: enabled");
 }
 
 function disable() {
 	gtkTitleBarOnlyExtension.destroy();
 	gtkTitleBarOnlyExtension = null;
-	global.log("GTKTitleBar: disabled");
+	//global.log("GTKTitleBar: disabled");
 }

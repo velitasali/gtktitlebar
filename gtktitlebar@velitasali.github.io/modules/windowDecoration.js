@@ -19,7 +19,7 @@ var WindowDecoration = new Lang.Class({
         this._useMotifHints = versionCheck('> 3.30.0');
         this._isWaylandComp = Meta.is_wayland_compositor();
 
-        global.log("GTKTitleBar: windowDecoration - _onInitialize");
+        //global.log("GTKTitleBar: windowDecoration - _onInitialize");
     },
 
     _onActivate() {
@@ -29,17 +29,17 @@ var WindowDecoration = new Lang.Class({
 
         this._undecorateWindows();
 
-        global.log("GTKTitleBar: windowDecoration - _onActivate");
+        //global.log("GTKTitleBar: windowDecoration - _onActivate");
     },
 
     _onDeactivate() {
         this._decorateWindows();
-        global.log("GTKTitleBar: windowDecoration - _onDeactivate");
+        //global.log("GTKTitleBar: windowDecoration - _onDeactivate");
     },
 
     _onReset() {
         this._undecorateWindows();
-        global.log("GTKTitleBar: windowDecoration - _onReset");
+        //global.log("GTKTitleBar: windowDecoration - _onReset");
     },
 
     _getWindowXID(win) {
@@ -53,10 +53,10 @@ var WindowDecoration = new Lang.Class({
     },
 
     _handleWindow(win) {
-        global.log("GTKTitleBar: windowDecoration - _handleWindow + win: " + win);
+        //global.log("GTKTitleBar: windowDecoration - _handleWindow + win: " + win);
 
         if (this._useMotifHints) {
-            global.log("GTKTitleBar: windowDecoration - _handleWindow + motifHints??: " + (isWindow(win) && !win.is_client_decorated()));
+            //global.log("GTKTitleBar: windowDecoration - _handleWindow + motifHints??: " + (isWindow(win) && !win.is_client_decorated()));
             return isWindow(win) && !win.is_client_decorated();
         } else
             return isWindow(win) && win.decorated;
@@ -73,7 +73,7 @@ var WindowDecoration = new Lang.Class({
                 this._toggleDecorationsGtk(winId, hide);
         });
 
-        global.log("GTKTitleBar: windowDecoration - _toggleDecorations + win: " + win + " + hide?: " + hide);
+        //global.log("GTKTitleBar: windowDecoration - _toggleDecorations + win: " + win + " + hide?: " + hide);
     },
 
     _toggleDecorationsGtk(winId, hide) {
@@ -107,7 +107,7 @@ var WindowDecoration = new Lang.Class({
         let focusWindow = global.display.focus_window;
         let toggleDecor = focusWindow;
 
-        global.log("GTKTitleBar: windowDecoration - _updateTitleBar");
+        //global.log("GTKTitleBar: windowDecoration - _updateTitleBar");
 
         if (!this._useMotifHints)
             toggleDecor = focusWindow && focusWindow.get_maximized() !== 0;
@@ -117,7 +117,7 @@ var WindowDecoration = new Lang.Class({
     },
 
     _showTitlebar(win) {
-        global.log("GTKTitleBar: windowDecoration - _showTitleBar + win: " + win);
+        //global.log("GTKTitleBar: windowDecoration - _showTitleBar + win: " + win);
 
         if (!win._decorationOFF) return;
 
@@ -126,7 +126,7 @@ var WindowDecoration = new Lang.Class({
     },
 
     _hideTitlebar(win) {
-        global.log("GTKTitleBar: windowDecoration - _hideTitleBar + win: " + win);
+        //global.log("GTKTitleBar: windowDecoration - _hideTitleBar + win: " + win);
 
         if (win._decorationOFF) return;
 
@@ -135,7 +135,7 @@ var WindowDecoration = new Lang.Class({
     },
 
     _toggleTitlebar(win) {
-        global.log("GTKTitleBar: windowDecoration - _toggleTitleBar + win: " + win);
+        //global.log("GTKTitleBar: windowDecoration - _toggleTitleBar + win: " + win);
 
         if (!this._handleWindow(win))
             return;
