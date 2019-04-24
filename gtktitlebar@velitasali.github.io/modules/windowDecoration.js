@@ -1,4 +1,5 @@
 const Lang = imports.lang;
+const ByteArray = imports.byteArray;
 const GLib = imports.gi.GLib;
 const Meta = imports.gi.Meta;
 const Util = imports.misc.util;
@@ -47,6 +48,46 @@ var WindowDecoration = new Lang.Class({
         return win._windowXID;
     },
 
+    _getHintValue(win, hint) {
+        let winId = this._getWindowXID(win);
+        if (!winId) return;
+
+        let result = GLib.spawn_command_line_sync(`xprop -id ${winId} ${hint}`);
+        let string = ByteArray.toString(result[1]);
+        if (!string.match(/=/)) return;
+
+        string = string.split('=')[1].trim().split(',').map(part => {
+            part = part.trim();
+            return part.match(/\dx/) ? part : `0x${part}`
+        });
+
+        return string;
+    },
+
+    _setHintValue(win, hint, value) {
+        let winId = this._getWindowXID(win);
+        if (!winId) return;
+
+        Util.spawn(['xprop', '-id', winId, '-f', hint, '32c', '-set', hint, value]);
+    },
+
+    _getMotifHints(win) {
+        if (!win._GTKTitleBarOriginalState) {
+            let state = this._getHintValue(win, '_GTKTitleBar_ORIGINAL_STATE');
+
+            if (!state) {
+                state = this._getHintValue(win, '_MOTIF_WM_HINTS');
+                state = state || ['0x2', '0x0', '0x1', '0x0', '0x0'];
+
+                this._setHintValue(win, '_GTKTitleBar_ORIGINAL_STATE', state.join(', '));
+            }
+
+            win._GTKTitleBarOriginalState = state;
+        }
+
+        return win._GTKTitleBarOriginalState;
+    },
+
     _getAllWindows() {
         let windows = global.get_window_actors().map(win => win.meta_window);
         return windows.filter(win => this._handleWindow(win));
@@ -55,11 +96,19 @@ var WindowDecoration = new Lang.Class({
     _handleWindow(win) {
         //global.log("GTKTitleBar: windowDecoration - _handleWindow + win: " + win);
 
+        let handleWin = false;
+        if (!isWindow(win)) return;
+
         if (this._useMotifHints) {
             //global.log("GTKTitleBar: windowDecoration - _handleWindow + motifHints??: " + (isWindow(win) && !win.is_client_decorated()));
-            return isWindow(win) && !win.is_client_decorated();
-        } else
-            return isWindow(win) && win.decorated;
+            let state = this._getMotifHints(win);
+            handleWin = !win.is_client_decorated();
+            handleWin = handleWin && (state[2] != '0x2' && state[2] != '0x0');
+        } else {
+            handleWin = win.decorated;
+        }
+
+        return handleWin;
     },
 
     _toggleDecorations(win, hide) {
@@ -109,7 +158,7 @@ var WindowDecoration = new Lang.Class({
 
         //global.log("GTKTitleBar: windowDecoration - _updateTitleBar");
 
-        if (!this._useMotifHints)
+        if (!this._useMotifHints && this._setting == 'both')
             toggleDecor = focusWindow && focusWindow.get_maximized() !== 0;
 
         if (toggleDecor)
