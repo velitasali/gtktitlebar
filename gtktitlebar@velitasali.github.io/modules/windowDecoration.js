@@ -13,12 +13,19 @@ const isMaximized = GTKTitleBar.imports.helpers.isMaximized;
 var WindowDecoration = new Lang.Class({
     Name: 'GTKTitleBar.WindowDecoration',
     Extends: Base,
-    _setting: 'both', // 'both': tiled or maximized, 'tiled': for edges,  'maximized': when maximized, 
+ 
+    _hideForSecondary: false,
+    _notHideWhenTiled: false,
 
     _onInitialize() {
         this.monitorManager = Meta.MonitorManager.get();
         this._useMotifHints = versionCheck('> 3.30.0');
         this._isWaylandComp = Meta.is_wayland_compositor();
+
+        this._settings.enable('hide-for-secondary', 'reloadForPreferences');
+        this._settings.enable('not-hide-when-tiled', 'reloadForPreferences');
+
+        this._loadPreferences();
 
         //global.log("GTKTitleBar: windowDecoration - _onInitialize");
     },
@@ -158,7 +165,7 @@ var WindowDecoration = new Lang.Class({
 
         //global.log("GTKTitleBar: windowDecoration - _updateTitleBar");
 
-        if (!this._useMotifHints && this._setting == 'both')
+        if (!this._useMotifHints)
             toggleDecor = focusWindow && focusWindow.get_maximized() !== 0;
 
         if (toggleDecor)
@@ -189,7 +196,7 @@ var WindowDecoration = new Lang.Class({
         if (!this._handleWindow(win))
             return;
 
-        if (isMaximized(win, this._setting))
+        if (isMaximized(win, this._hideForSecondary, this._notHideWhenTiled)) 
             this._hideTitlebar(win);
         else
             this._showTitlebar(win);
@@ -203,5 +210,17 @@ var WindowDecoration = new Lang.Class({
     _decorateWindows() {
         let windows = this._getAllWindows();
         windows.forEach(win => { this._resetDecorations(win) });
+    },
+
+    _loadPreferences() {
+        this._hideForSecondary = this._settings.get('hide-for-secondary');
+        this._notHideWhenTiled = this._settings.get('not-hide-when-tiled');
+    },
+
+    _reloadForPreferences() {
+        global.log("GTKTitleBar: windowDecoration - _reloadForPreferences");
+
+        this._loadPreferences();
+        this._updateTitlebar();
     }
 });
