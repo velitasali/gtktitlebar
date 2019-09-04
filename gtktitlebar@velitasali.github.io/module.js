@@ -1,12 +1,14 @@
 const Lang = imports.lang;
 const GTKTitleBar = imports.misc.extensionUtils.getCurrentExtension();
 const Signals = GTKTitleBar.imports.handlers.SignalsHandler;
+const Settings = GTKTitleBar.imports.handlers.SettingsHandler;
 
-var BaseModule = new Lang.Class({
+const BaseModule = new Lang.Class({
     Name: 'GTKTitleBar.BaseModule',
     
     _init() {
         this._signals = new Signals(this);
+        this._settings = new Settings(this);
 
         this._runCallback('_onInitialize');
         this._activate();

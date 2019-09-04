@@ -1,7 +1,9 @@
 const Lang = imports.lang;
+const GObject = imports.gi.GObject;
 const GTKTitleBar = imports.misc.extensionUtils.getCurrentExtension();
+const Preferences = GTKTitleBar.imports.preferences;
 
-var SignalsHandler = new Lang.Class({
+var SignalsHandler = new GObject.Class({
     Name: 'GTKTitleBar.SignalsHandler',
 
     _init(context) {
@@ -50,5 +52,50 @@ var SignalsHandler = new Lang.Class({
 
     disconnectAll() {
         this.disconnectMany(Object.keys(this._signals));
+    }
+});
+
+var SettingsHandler = new GObject.Class({
+    Name: 'GTBSettingsHandler',
+    Extends: SignalsHandler,
+
+    _init(context) {
+        this._enabler = null;
+        this._signals = {};
+        this._context = context;
+        this._settings = Preferences.getSettings();
+    },
+
+    _getSettingObject(settingKey) {
+        if (this._settings.exists(settingKey))
+            return this._settings;
+    },
+
+    connect(name, callback) {
+        let object = this._getSettingObject(name);
+        return this._addHandler(object, `changed::${name}`, callback);
+    },
+
+    enable(name, callback) {
+        if (this._enabler)
+            return;
+
+        let signalObj = this._settings;
+        this._enabler = this._connectHandler(signalObj, `changed::${name}`, callback);
+    },
+
+    disable() {
+        if (!this._enabler)
+            return;
+
+        this._settings.disconnect(this._enabler.signalId);
+        this._enabler = null;
+    },
+
+    get(settingKey) {
+        if (settingKey == null) return;
+
+        let object = this._getSettingObject(settingKey);
+        if (object) return object.getSetting(settingKey);
     }
 });

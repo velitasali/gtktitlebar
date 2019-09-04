@@ -3,7 +3,7 @@ const Main = imports.ui.main;
 const GTKTitleBar = imports.misc.extensionUtils.getCurrentExtension();
 const WindowDecoration = GTKTitleBar.imports.modules.windowDecoration.WindowDecoration;
 
-var GTKTitleBarOnlyExtension = new Lang.Class({
+const GTKTitleBarOnlyExtension = new Lang.Class({
 	Name: 'GTKTitleBar.Extension',
 
 	_init() {

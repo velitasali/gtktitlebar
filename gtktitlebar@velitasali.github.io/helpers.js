@@ -56,7 +56,7 @@ function isWindow(win) {
     return types.includes(win.window_type);
 }
 
-function isMaximized(win, matchState) {
+function isMaximized(win, secondaryAllowed, tileNotAllowed) {
     if (!win) return;
 
     let flags = Meta.MaximizeFlags;
@@ -64,11 +64,6 @@ function isMaximized(win, matchState) {
     let primaryScreen = win.is_on_primary_monitor();
     let tileMaximized = maximized == flags.HORIZONTAL || maximized == flags.VERTICAL;
     let fullMaximized = maximized == flags.BOTH;
-    let bothMaximized = fullMaximized || tileMaximized;
 
-    switch (matchState) {
-        case 'both': return primaryScreen && bothMaximized;
-        case 'maximized': return primaryScreen && fullMaximized;
-        case 'tiled': return primaryScreen && tileMaximized;
-    }
+    return (primaryScreen || secondaryAllowed) && (fullMaximized || (tileMaximized && !tileNotAllowed));
 }
