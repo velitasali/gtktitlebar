@@ -2,7 +2,7 @@
 - This extension simply removes title bar on apps like Spotify and Qt5 apps when you maximize the windows for them.
 - Unlike Unite (another extension with similar functionality), this does not remove window buttons for GTK apps.
 - Makes the minimal change on your system's default behaviour.
-- Supports GNOME 3.34 (from 3.28).
+- Supports GNOME 3.32 and 3.34 (for 3.28-3.30 support use the versions 3 and below)
 - This work here is hardfork of [unite-shell](https://github.com/hardpixel/unite-shell) extension. 
 
 # Screenshots
