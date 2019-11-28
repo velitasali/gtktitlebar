@@ -1,112 +1,102 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.22.1 
-
-- 
-Copyright (C) 
-
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-
-Author: Veli Tasalı
-
--->
+<!-- Generated with glade 3.22.1 -->
 <interface domain="gtktitlebar">
   <requires lib="gtk+" version="3.10"/>
-  <!-- interface-license-type gplv2 -->
-  <!-- interface-authors Veli Tasal\304\261 -->
   <object class="GtkBox" id="prefs_widget">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
+    <property name="valign">start</property>
+    <property name="margin_left">20</property>
+    <property name="margin_right">20</property>
+    <property name="margin_top">20</property>
+    <property name="margin_bottom">20</property>
     <property name="orientation">vertical</property>
+    <property name="spacing">15</property>
+    <property name="homogeneous">True</property>
     <child>
-      <object class="GtkBox">
+      <object class="GtkBox" id="restrict_to_primary_screen_section">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
+        <property name="spacing">50</property>
         <child>
           <object class="GtkLabel">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="label" translatable="yes">Hide title bar also for secondary monitors</property>
+            <property name="valign">center</property>
+            <property name="label" translatable="yes">Restrict functionalities to the primary screen</property>
           </object>
           <packing>
             <property name="expand">False</property>
             <property name="fill">True</property>
-            <property name="padding">5</property>
             <property name="position">0</property>
           </packing>
         </child>
         <child>
-          <object class="GtkSwitch" id="hide_for_secondary">
+          <object class="GtkSwitch" id="restrict_to_primary_screen">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
+            <property name="valign">center</property>
+            <property name="active">True</property>
           </object>
           <packing>
             <property name="expand">False</property>
-            <property name="fill">False</property>
-            <property name="padding">5</property>
+            <property name="fill">True</property>
             <property name="pack_type">end</property>
-            <property name="position">2</property>
+            <property name="position">1</property>
           </packing>
         </child>
       </object>
       <packing>
         <property name="expand">False</property>
         <property name="fill">True</property>
-        <property name="padding">5</property>
-        <property name="position">0</property>
+        <property name="position">6</property>
       </packing>
     </child>
     <child>
-      <object class="GtkBox">
+      <object class="GtkBox" id="hide_window_titlebars_section">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
+        <property name="spacing">50</property>
         <child>
           <object class="GtkLabel">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="label" translatable="yes">Do not hide when a windows is tiled</property>
+            <property name="valign">center</property>
+            <property name="label" translatable="yes">Hide window titlebars</property>
           </object>
           <packing>
             <property name="expand">False</property>
             <property name="fill">True</property>
-            <property name="padding">5</property>
             <property name="position">0</property>
           </packing>
         </child>
         <child>
-          <object class="GtkSwitch" id="not_hide_when_tiled">
+          <object class="GtkComboBoxText" id="hide_window_titlebars">
+            <property name="width_request">170</property>
             <property name="visible">True</property>
-            <property name="can_focus">True</property>
+            <property name="can_focus">False</property>
+            <property name="active_id">2</property>
+            <items>
+              <item id="0" translatable="yes">Never</item>
+              <item id="1" translatable="yes">Tiled</item>
+              <item id="2" translatable="yes">Maximized</item>
+              <item id="3" translatable="yes">Both</item>
+              <item id="4" translatable="yes">Always</item>
+            </items>
           </object>
           <packing>
             <property name="expand">False</property>
-            <property name="fill">False</property>
-            <property name="padding">5</property>
+            <property name="fill">True</property>
             <property name="pack_type">end</property>
-            <property name="position">2</property>
+            <property name="position">1</property>
           </packing>
         </child>
       </object>
       <packing>
         <property name="expand">False</property>
         <property name="fill">True</property>
-        <property name="padding">5</property>
-        <property name="position">1</property>
+        <property name="position">9</property>
       </packing>
-    </child>
-    <child>
-      <placeholder/>
     </child>
   </object>
 </interface>
