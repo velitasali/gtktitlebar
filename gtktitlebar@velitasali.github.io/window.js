@@ -5,7 +5,6 @@ const Meta = imports.gi.Meta
 const Main = imports.ui.main
 const Util = imports.misc.util
 const GTKTitleBar = imports.misc.extensionUtils.getCurrentExtension()
-const AppMenu  = Main.panel.statusArea.appMenu
 const Handlers = GTKTitleBar.imports.handlers
 
 const VALID_TYPES = [
@@ -160,14 +159,6 @@ var MetaWindow = GObject.registerClass({
       return this.win.has_focus()
     }
 
-    get title() {
-      if (this.showTitle) {
-        return this.win.get_title()
-      } else {
-        return AppMenu._targetApp.get_name()
-      }
-    }
-
     get clientDecorated() {
       return this.win.is_client_decorated()
     }
@@ -202,14 +193,6 @@ var MetaWindow = GObject.registerClass({
 
     get handleScreen() {
       return this.primaryScreen || !this.restrictToPrimary
-    }
-
-    get showTitle() {
-      return this._parseEnumSetting('show-window-title')
-    }
-
-    get showButtons() {
-      return this._parseEnumSetting('show-window-buttons')
     }
 
     get hideTitlebars() {
@@ -351,7 +334,7 @@ var WindowManager = GObject.registerClass({
 
     _onFocusWindow(display) {
       if (this.focusWindow) {
-        this.focusWindow.syncComponents()
+        this.focusWindow.syncDecorations()
       }
 
       this.emit('focus-changed')
