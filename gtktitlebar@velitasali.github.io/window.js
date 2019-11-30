@@ -119,12 +119,8 @@ var ServerDecorations = class ServerDecorations {
   }
 }
 
-var MetaWindow = GObject.registerClass({
-  Signals: {
-    'title-changed': {},
-    'state-changed': {}
-  }
-}, class GTKTBMetaWindow extends GObject.Object {
+var MetaWindow = GObject.registerClass(
+  class GTKTBMetaWindow extends GObject.Object {
     _init(win) {
       win._gtktbShellManaged = true
 
@@ -240,7 +236,6 @@ var MetaWindow = GObject.registerClass({
 
     _onStateChanged() {
       this.syncDecorations()
-      this.emit('state-changed')
     }
 
     destroy() {
@@ -254,11 +249,8 @@ var MetaWindow = GObject.registerClass({
   }
 )
 
-var WindowManager = GObject.registerClass({
-  Signals: {
-    'focus-changed': {}
-  }
-}, class GTKTBWindowManager extends GObject.Object {
+var WindowManager = GObject.registerClass(
+  class GTKTBWindowManager extends GObject.Object {
     _init() {
       this.windows  = new Map()
       this.signals  = new Handlers.Signals()
@@ -336,15 +328,13 @@ var WindowManager = GObject.registerClass({
       if (this.focusWindow) {
         this.focusWindow.syncDecorations()
       }
-
-      this.emit('focus-changed')
     }
 
     _onAttention(actor, win) {
-      const auto = this.settings.get('autofocus-windows')
-      const time = global.get_current_time()
+      //const auto = this.settings.get('autofocus-windows')
+      //const time = global.get_current_time()
 
-      auto && Main.activateWindow(win, time)
+      //auto && Main.activateWindow(win, time)
     }
 
     activate() {
