@@ -5,6 +5,9 @@
 - Supports GNOME 3.32 and 3.34 (for 3.28-3.30 support use the versions 3 and below)
 - This work here is hardfork of [unite-shell](https://github.com/hardpixel/unite-shell) extension. 
 
+# Dependencies
+- `xprop` should come preinstalled with your system, if not, you should install it.
+
 # Screenshots
 [<img src="ss_1.png">](ss_1.png)
 [<img src="ss_2.png">](ss_2.png)
