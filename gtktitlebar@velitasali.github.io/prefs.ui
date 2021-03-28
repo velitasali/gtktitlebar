@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface domain="gtktitlebar">
+  <requires lib="gtk" version="4.0"/>
+  <template class="PrefsWidget" parent="GtkBox">
+    <property name="width-request">600</property>
+    <property name="can-focus">0</property>
+    <property name="halign">center</property>
+    <property name="valign">start</property>
+    <property name="margin-start">36</property>
+    <property name="margin-end">36</property>
+    <property name="margin-top">36</property>
+    <property name="margin-bottom">36</property>
+    <property name="orientation">vertical</property>
+    <property name="spacing">30</property>
+    <property name="baseline-position">top</property>
+    <child>
+      <object class="GtkFrame" id="general">
+        <property name="can-focus">0</property>
+        <property name="child">
+          <object class="GtkListBox">
+            <property name="width-request">600</property>
+            <property name="can-focus">0</property>
+            <property name="selection-mode">none</property>
+            <child>
+              <object class="GtkListBoxRow">
+                <property name="activatable">0</property>
+                <property name="child">
+                  <object class="GtkBox">
+                    <property name="can-focus">0</property>
+                    <property name="margin-start">16</property>
+                    <property name="margin-end">16</property>
+                    <property name="margin-top">16</property>
+                    <property name="margin-bottom">16</property>
+                    <property name="spacing">30</property>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="can-focus">0</property>
+                        <property name="orientation">vertical</property>
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="can-focus">0</property>
+                            <property name="halign">start</property>
+                            <property name="label" translatable="yes">Primary Monitor Only</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="valign">center</property>
+                            <property name="can-focus">0</property>
+                            <property name="halign">start</property>
+                            <property name="label" translatable="yes">Only hide title bars for windows in primary monitor.</property>
+                            <property name="use-markup">1</property>
+                            <property name="wrap">1</property>
+                            <property name="max-width-chars">50</property>
+                            <property name="xalign">0</property>
+                            <style>
+                              <class name="dim-label"/>
+                            </style>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkSwitch" id="restrict_to_primary_screen">
+                        <property name="hexpand">1</property>
+                        <property name="halign">end</property>
+                        <property name="valign">center</property>
+                        <property name="active">1</property>
+                      </object>
+                    </child>
+                  </object>
+                </property>
+              </object>
+            </child>
+          </object>
+        </property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkBox" id="manual">
+        <property name="can-focus">0</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">8</property>
+        <child>
+          <object class="GtkLabel">
+            <property name="can-focus">0</property>
+            <property name="halign">start</property>
+            <property name="label" translatable="yes">Hide When</property>
+            <attributes>
+              <attribute name="weight" value="bold"></attribute>
+            </attributes>
+          </object>
+        </child>
+        <child>
+          <object class="GtkBox">
+            <property name="width-request">600</property>
+            <property name="can-focus">0</property>
+            <property name="halign">center</property>
+            <property name="homogeneous">1</property>
+            <child>
+              <object class="GtkToggleButton" id="hide_when_maximized">
+                <property name="label" translatable="yes">Maximized</property>
+                <property name="active">1</property>
+                <property name="name">maximized</property>
+                <signal name="toggled" handler="_onBarVisibilityButton" swapped="no"/>
+              </object>
+            </child>
+            <child>
+              <object class="GtkToggleButton" id="hide_when_tiled">
+                <property name="label" translatable="yes">Tiled</property>
+                <property name="group">hide_when_maximized</property>
+                <property name="name">tiled</property>
+                <signal name="toggled" handler="_onBarVisibilityButton" swapped="no"/>
+              </object>
+            </child>
+            <child>
+              <object class="GtkToggleButton" id="hide_when_both">
+                <property name="label" translatable="yes">Both</property>
+                <property name="group">hide_when_maximized</property>
+                <property name="name">both</property>
+                <signal name="toggled" handler="_onBarVisibilityButton" swapped="no"/>
+              </object>
+            </child>
+            <child>
+              <object class="GtkToggleButton" id="hide_always">
+                <property name="label" translatable="yes">Always</property>
+                <property name="group">hide_when_maximized</property>
+                <property name="name">always</property>
+                <signal name="toggled" handler="_onBarVisibilityButton" swapped="no"/>
+              </object>
+            </child>
+            <style>
+              <class name="linked"/>
+            </style>
+          </object>
+        </child>
+      </object>
+    </child>
+  </template>
+</interface>

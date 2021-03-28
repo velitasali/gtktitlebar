@@ -1,34 +1,17 @@
 const GObject = imports.gi.GObject
 const Main = imports.ui.main
-const GTKTitleBar = imports.misc.extensionUtils.getCurrentExtension()
-const WindowManager = GTKTitleBar.imports.window.WindowManager
+const ExtensionUtils = imports.misc.extensionUtils
+const Me = ExtensionUtils.getCurrentExtension()
+const WindowManager = Me.imports.window.WindowManager
 
-var TitleBarExtension = GObject.registerClass(
-  class TitleBarExtension extends GObject.Object {
-    _init() {
-      this.windowManager = new WindowManager()
-    }
-
-    get focusWindow() {
-      return this.windowManager.focusWindow
-    }
-
-    activate() {
-      this.windowManager.activate()
-    }
-
-    destroy() {
-      this.windowManager.destroy()
-    }
-  }
-)
+var windowManager = null 
 
 function enable() {
-  global.titlebar = new TitleBarExtension()
-  global.titlebar.activate()
+  windowManager = new WindowManager()
+  windowManager.activate()
 }
 
 function disable() {
-  global.titlebar.destroy()
-  global.titlebar = null
+  windowManager.destroy()
+  windowManager = null
 }

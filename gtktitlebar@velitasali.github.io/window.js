@@ -1,11 +1,8 @@
 const Bytes = imports.byteArray
-const GLib = imports.gi.GLib
-const GObject = imports.gi.GObject
-const Meta = imports.gi.Meta
+const {GLib, GObject, Meta} = imports.gi
 const Main = imports.ui.main
 const Util = imports.misc.util
-const GTKTitleBar = imports.misc.extensionUtils.getCurrentExtension()
-const Handlers = GTKTitleBar.imports.handlers
+const ExtensionUtils = imports.misc.extensionUtils
 
 const VALID_TYPES = [
   Meta.WindowType.NORMAL,
@@ -120,166 +117,153 @@ var ServerDecorations = class ServerDecorations {
 }
 
 var MetaWindow = GObject.registerClass(
-  class GTKTBMetaWindow extends GObject.Object {
+  class MetaWindow extends GObject.Object {
     _init(win) {
-      win._gtktbShellManaged = true
+      win._shellManaged = true
 
+      this.settings = ExtensionUtils.getSettings("org.gnome.shell.extensions.gtktitlebar")
       this.win = win
       this.xid = getXid(win)
-
-      this.signals  = new Handlers.Signals()
-      this.settings = new Handlers.Settings()
-
-      if (this.xid && !this.clientDecorated) {
+      
+      if (this.xid && !this.win.is_client_decorated()) {
         this.decorations = new ServerDecorations(this.xid)
       } else {
         this.decorations = new ClientDecorations(this.xid)
       }
-
-      this.signals.connect(
-        win, 'size-changed', this._onStateChanged.bind(this)
-      )
-
-      this.settings.connect(
-        'restrict-to-primary-screen', this.syncDecorations.bind(this)
-      )
-
-      this.settings.connect(
-        'hide-window-titlebars', this.syncDecorations.bind(this)
-      )
-
+      
+      this.windowConnectionId = this.win.connect('size-changed', () => {
+        this.syncDecorations()
+      })
+      this.settingsConnectionId = this.settings.connect('changed', (key) => {
+        log("Setting changed: " + key)
+        switch(key) {
+          case 'hide-window-titlebars':
+          case 'restrict-to-primary-screen':
+            log("gtktitlebar: Reloading settings")
+            this.syncDecorations()
+        }
+      })
+      
       this.syncDecorations()
     }
-
-    get hasFocus() {
-      return this.win.has_focus()
+    
+    close() {
+      const time = global.get_current_time()
+      time && this.win.delete(time)
     }
 
-    get clientDecorated() {
-      return this.win.is_client_decorated()
-    }
+    destroy() {
+      this.decorations.reset()
 
-    get primaryScreen() {
-      return this.win.is_on_primary_monitor()
-    }
+      this.win.disconnet(this.windowConnectionId)
+      this.settings.disconnect(this.settingsConnectionId)
 
-    get minimized() {
-      return this.win.minimized
-    }
-
-    get maximized() {
-      return this.win.maximized_horizontally && this.win.maximized_vertically
-    }
-
-    get tiled() {
-      if (this.maximized) {
-        return false
-      } else {
-        return this.win.maximized_horizontally || this.win.maximized_vertically
-      }
-    }
-
-    get bothMaximized() {
-      return this.maximized || this.tiled
-    }
-
-    get restrictToPrimary() {
-      return this.settings.get('restrict-to-primary-screen')
+      this.win._shellManaged = false
     }
 
     get handleScreen() {
-      return this.primaryScreen || !this.restrictToPrimary
+      return this.windowInPrimaryScreen || !this.settings.get('restrict-to-primary-screen')
     }
 
-    get hideTitlebars() {
-      return this._parseEnumSetting('hide-window-titlebars')
-    }
-
-    minimize() {
-      if (this.minimized) {
-        this.win.unminimize()
-      } else {
-        this.win.minimize()
+    get hidingStrategyPreference() {
+      switch (this.settings.get('hide-window-titlebars')) {
+        case 'always': return true
+        case 'tiled': return this.handleScreen && this.windowTiled
+        case 'maximized': return this.handleScreen && this.windowMaximized
+        case 'both': return this.handleScreen && (this.windowMaximized || this.windowTiled)
       }
+      log("gtktitlebar: Unexpected enum. Will not hide title bars.")
+      return false
     }
-
+    
     maximize() {
-      if (this.maximized) {
+      if (this.windowMaximized) {
         this.win.unmaximize(Meta.MaximizeFlags.BOTH)
       } else {
         this.win.maximize(Meta.MaximizeFlags.BOTH)
       }
     }
 
-    close() {
-      const time = global.get_current_time()
-      time && this.win.delete(time)
+    minimize() {
+      if (this.windowMinimized) {
+        this.win.unminimize()
+      } else {
+        this.win.minimize()
+      }
     }
-
+    
     syncDecorations() {
-      if (this.hideTitlebars) {
+      if (this.hidingStrategyPreference) {
         this.decorations.hide()
       } else {
         this.decorations.show()
       }
     }
+    
+    get windowMaximized() {
+      return this.win.maximized_horizontally && this.win.maximized_vertically
+    }
 
-    _parseEnumSetting(name) {      
-      switch (this.settings.get(name)) {
-        case 'always':    return true
-        case 'never':     return false
-        case 'tiled':     return this.handleScreen && this.tiled
-        case 'maximized': return this.handleScreen && this.maximized
-        case 'both':      return this.handleScreen && this.bothMaximized
+    get windowMinimized() {
+      return this.win.minimized
+    }
+    
+    get windowInPrimaryScreen() {
+      return this.win.is_on_primary_monitor()
+    }
+
+    get windowTiled() {
+      if (this.windowMaximized) {
+        return false
+      } else {
+        return this.win.maximized_horizontally || this.win.maximized_vertically
       }
-    }
-
-    _onStateChanged() {
-      this.syncDecorations()
-    }
-
-    destroy() {
-      this.decorations.reset()
-
-      this.signals.disconnectAll()
-      this.settings.disconnectAll()
-
-      this.win._gtktbShellManaged = false
     }
   }
 )
 
 var WindowManager = GObject.registerClass(
-  class GTKTBWindowManager extends GObject.Object {
+  class WindowManager extends GObject.Object {
     _init() {
+      this.settings = ExtensionUtils.getSettings("org.gnome.shell.extensions.gtktitlebar")
       this.windows  = new Map()
-      this.signals  = new Handlers.Signals()
-      this.settings = new Handlers.Settings()
+      this.mappingConnectionId = global.window_manager.connect('map', this._onMapWindow.bind(this))
+      this.destroyingConnectionId = global.window_manager.connect('destroy', this._onDestroyWindow.bind(this))
+      this.focusingConnectionId = global.display.connect('notify::focus-window', this._onFocusWindow.bind(this))
+    }
+    
+    activate() {
+      GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
+        const actors = global.get_window_actors()
+        actors.forEach(actor => this._onMapWindow(null, actor))
+      })
+    }
 
-      this.signals.connect(
-        global.window_manager, 'map', this._onMapWindow.bind(this)
-      )
+    destroy() {
+      this.clearWindows()
+      global.window_manager.disconnect(this.mappingConnectionId)
+      global.window_manager.disconnect(this.destroyingConnectionId)
+      global.display.disconnect(this.focusingConnectionId)
+    }
+    
+    clearWindows() {
+      for (const key of this.windows.keys()) {
+        this.deleteWindow(key)
+      }
+    }
+    
+    deleteWindow(win) {
+      if (this.hasWindow(win)) {
+        const meta = this.getWindow(win)
+        meta.destroy()
 
-      this.signals.connect(
-        global.window_manager, 'destroy', this._onDestroyWindow.bind(this)
-      )
-
-      this.signals.connect(
-        global.display, 'notify::focus-window', this._onFocusWindow.bind(this)
-      )
-
-      this.signals.connect(
-        global.display, 'window-demands-attention', this._onAttention.bind(this)
-      )
+        this.windows.delete(`${win}`)
+      }
     }
 
     get focusWindow() {
       const win = global.display.get_focus_window()
       return this.getWindow(win)
-    }
-
-    get hideTitlebars() {
-      return this.settings.get('hide-window-titlebars')
     }
 
     hasWindow(win) {
@@ -297,27 +281,6 @@ var WindowManager = GObject.registerClass(
       }
     }
 
-    deleteWindow(win) {
-      if (this.hasWindow(win)) {
-        const meta = this.getWindow(win)
-        meta.destroy()
-
-        this.windows.delete(`${win}`)
-      }
-    }
-
-    clearWindows() {
-      for (const key of this.windows.keys()) {
-        this.deleteWindow(key)
-      }
-    }
-
-    _onMapWindow(shellwm, { meta_window }) {
-      if (isValid(meta_window)) {
-        this.setWindow(meta_window)
-      }
-    }
-
     _onDestroyWindow(shellwm, { meta_window }) {
       if (isValid(meta_window)) {
         this.deleteWindow(meta_window)
@@ -329,26 +292,11 @@ var WindowManager = GObject.registerClass(
         this.focusWindow.syncDecorations()
       }
     }
-
-    _onAttention(actor, win) {
-      //const auto = this.settings.get('autofocus-windows')
-      //const time = global.get_current_time()
-
-      //auto && Main.activateWindow(win, time)
-    }
-
-    activate() {
-      GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
-        const actors = global.get_window_actors()
-        actors.forEach(actor => this._onMapWindow(null, actor))
-      })
-    }
-
-    destroy() {
-      this.clearWindows()
-
-      this.signals.disconnectAll()
-      this.settings.disconnectAll()
+    
+    _onMapWindow(shellwm, { meta_window }) {
+      if (isValid(meta_window)) {
+        this.setWindow(meta_window)
+      }
     }
   }
 )
