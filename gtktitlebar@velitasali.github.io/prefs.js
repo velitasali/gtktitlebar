@@ -25,6 +25,21 @@ const PrefsWidget = GObject.registerClass({
       'active',
       Gio.SettingsBindFlags.DEFAULT
     )
+    
+    let hidingStrategy = this.settings.get_string('hide-window-titlebars')
+    let hidingStrategyButtons = [
+      this._hide_when_maximized,
+      this._hide_when_tiled,
+      this._hide_when_both,
+      this._hide_always ,
+    ]
+    
+    hidingStrategyButtons.forEach((button) => {
+      if (hidingStrategy == button.get_name()) {
+        button.active = true
+        return false
+      }
+    })
   }
  
   _onBarVisibilityButton(visibilityButton)  {
@@ -33,27 +48,26 @@ const PrefsWidget = GObject.registerClass({
     var newSetting = -1
     
     switch (visibilityButton.get_name()) {
-      case "maximized":
+      case 'maximized':
         newSetting = 0
         break
-      case "tiled":
+      case 'tiled':
         newSetting = 1
         break
-      case "both":
+      case 'both':
         newSetting = 2
         break
-      case "always":
+      case 'always':
         newSetting = 3
         break
     }
     
     this.settings.set_enum("hide-window-titlebars", newSetting)
-    log(visibilityButton.get_name() + ": active=" + newSetting)
   }
 })
 
 function init() {
-  ExtensionUtils.initTranslations('gtktitlebar');
+  ExtensionUtils.initTranslations('gtktitlebar')
 }
 
 function buildPrefsWidget() {

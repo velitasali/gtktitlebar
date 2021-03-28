@@ -82,7 +82,7 @@ var ClientDecorations = class ClientDecorations {
 
 var ServerDecorations = class ServerDecorations {
   constructor(xid) {
-    this.xid     = xid
+    this.xid = xid
     this.initial = getHints(xid)
     this.current = this.initial
   }
@@ -131,15 +131,11 @@ var MetaWindow = GObject.registerClass(
         this.decorations = new ClientDecorations(this.xid)
       }
       
-      this.windowConnectionId = this.win.connect('size-changed', () => {
-        this.syncDecorations()
-      })
-      this.settingsConnectionId = this.settings.connect('changed', (key) => {
-        log("Setting changed: " + key)
+      this.windowConnectionId = this.win.connect('size-changed', this.syncDecorations.bind(this))
+      this.settingsConnectionId = this.settings.connect('changed', (settings, key) => {
         switch(key) {
           case 'hide-window-titlebars':
           case 'restrict-to-primary-screen':
-            log("gtktitlebar: Reloading settings")
             this.syncDecorations()
         }
       })
@@ -154,25 +150,25 @@ var MetaWindow = GObject.registerClass(
 
     destroy() {
       this.decorations.reset()
-
-      this.win.disconnet(this.windowConnectionId)
+      this.win.disconnect(this.windowConnectionId)
       this.settings.disconnect(this.settingsConnectionId)
 
       this.win._shellManaged = false
     }
 
     get handleScreen() {
-      return this.windowInPrimaryScreen || !this.settings.get('restrict-to-primary-screen')
+      return this.windowInPrimaryScreen || !this.settings.get_boolean('restrict-to-primary-screen')
     }
 
     get hidingStrategyPreference() {
-      switch (this.settings.get('hide-window-titlebars')) {
+      let setting = this.settings.get_string('hide-window-titlebars')
+      switch (setting) {
         case 'always': return true
         case 'tiled': return this.handleScreen && this.windowTiled
         case 'maximized': return this.handleScreen && this.windowMaximized
         case 'both': return this.handleScreen && (this.windowMaximized || this.windowTiled)
       }
-      log("gtktitlebar: Unexpected enum. Will not hide title bars.")
+      log("gtktitlebar: Unexpected enum. Will not hide title bars: " + setting)
       return false
     }
     
