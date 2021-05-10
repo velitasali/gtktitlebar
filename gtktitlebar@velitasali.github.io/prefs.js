@@ -12,7 +12,7 @@ const PrefsWidget = GObject.registerClass({
     'hide_when_both',
     'hide_always',
   ]
-}, class PrefsWidget extends Gtk.Box {
+}, class GTKTitleBarPrefsWidget extends Gtk.Box {
 
   _init(params = {}) {
     super._init(params)

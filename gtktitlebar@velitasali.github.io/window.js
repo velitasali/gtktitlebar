@@ -117,7 +117,7 @@ var ServerDecorations = class ServerDecorations {
 }
 
 var MetaWindow = GObject.registerClass(
-  class MetaWindow extends GObject.Object {
+  class GTKTitleBarMetaWindow extends GObject.Object {
     _init(win) {
       win._shellManaged = true
 
@@ -219,7 +219,7 @@ var MetaWindow = GObject.registerClass(
 )
 
 var WindowManager = GObject.registerClass(
-  class WindowManager extends GObject.Object {
+  class GTKTitleBarWindowManager extends GObject.Object {
     _init() {
       this.settings = ExtensionUtils.getSettings("org.gnome.shell.extensions.gtktitlebar")
       this.windows  = new Map()
