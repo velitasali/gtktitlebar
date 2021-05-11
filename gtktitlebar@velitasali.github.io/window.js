@@ -161,12 +161,14 @@ var MetaWindow = GObject.registerClass(
     }
 
     get hidingStrategyPreference() {
+      if (!this.handleScreen) return false
+    
       let setting = this.settings.get_string('hide-window-titlebars')
       switch (setting) {
-        case 'always': return this.handleScreen
-        case 'tiled': return this.handleScreen && this.windowTiled
-        case 'maximized': return this.handleScreen && this.windowMaximized
-        case 'both': return this.handleScreen && (this.windowMaximized || this.windowTiled)
+        case 'always': return true
+        case 'tiled': return this.windowTiled
+        case 'maximized': return this.windowMaximized
+        case 'both': return this.windowMaximized || this.windowTiled
       }
       log("gtktitlebar: Unexpected enum. Will not hide title bars: " + setting)
       return false
