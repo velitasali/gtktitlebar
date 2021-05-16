@@ -5,6 +5,6 @@
   "version": 8,
   "settings-schema": "org.gnome.shell.extensions.gtktitlebar",
   "gettext-domain": "gtktitlebar",
-  "url": "https://github.com/velitasali/GTKTitleBar",
+  "url": "https://github.com/velitasali/gtktitlebar",
   "uuid": "gtktitlebar@velitasali.github.io"
 }
