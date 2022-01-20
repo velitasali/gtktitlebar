@@ -130,9 +130,10 @@ var MetaWindow = GObject.registerClass(
       } else {
         this.decorations = new ClientDecorations(this.xid)
       }
-      
-      this.windowConnectionId = this.win.connect('size-changed', this.syncDecorations.bind(this))
-      this.settingsConnectionId = this.settings.connect('changed', (settings, key) => {
+
+      this.sizeChangedConnectionId = this.win.connect('size-changed', this.syncDecorations.bind(this))
+      this.workspaceChangedConnectionId = this.win.connect('workspace-changed', this.syncDecorations.bind(this))
+      this.settingsChangedConnectionId = this.settings.connect('changed', (settings, key) => {
         switch(key) {
           case 'hide-window-titlebars':
           case 'restrict-to-primary-screen':
@@ -142,16 +143,12 @@ var MetaWindow = GObject.registerClass(
       
       this.syncDecorations()
     }
-    
-    close() {
-      const time = global.get_current_time()
-      time && this.win.delete(time)
-    }
 
     destroy() {
       this.decorations.reset()
-      this.win.disconnect(this.windowConnectionId)
-      this.settings.disconnect(this.settingsConnectionId)
+      this.win.disconnect(this.sizeChangedConnectionId)
+      this.win.disconnect(this.workspaceChangedConnectionId)
+      this.settings.disconnect(this.settingsChangedConnectionId)
 
       this.win._shellManaged = false
     }
@@ -228,6 +225,7 @@ var WindowManager = GObject.registerClass(
       this.mappingConnectionId = global.window_manager.connect('map', this._onMapWindow.bind(this))
       this.destroyingConnectionId = global.window_manager.connect('destroy', this._onDestroyWindow.bind(this))
       this.focusingConnectionId = global.display.connect('notify::focus-window', this._onFocusWindow.bind(this))
+      this.windowLeftMonitorConnectionId = global.display.connect('window-left-monitor', this._onWindowLeftMonitor.bind(this))
     }
     
     activate() {
@@ -242,6 +240,7 @@ var WindowManager = GObject.registerClass(
       global.window_manager.disconnect(this.mappingConnectionId)
       global.window_manager.disconnect(this.destroyingConnectionId)
       global.display.disconnect(this.focusingConnectionId)
+      global.display.disconnect(this.windowLeftMonitorConnectionId)
     }
     
     clearWindows() {
@@ -294,6 +293,12 @@ var WindowManager = GObject.registerClass(
     _onMapWindow(shellwm, { meta_window }) {
       if (isValid(meta_window)) {
         this.setWindow(meta_window)
+      }
+    }
+
+    _onWindowLeftMonitor(display, id, window) {
+      if (this.hasWindow(window)) {
+        this.getWindow(window).syncDecorations()
       }
     }
   }
