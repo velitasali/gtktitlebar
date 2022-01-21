@@ -1,8 +1,8 @@
 {
-  "shell-version": ["40", "41"],
+  "shell-version": ["40", "41", "42"],
   "name": "GTK Title Bar",
   "description": "Remove title bars for non-GTK apps with minimal interference with the default workflow",
-  "version": 9,
+  "version": 10,
   "settings-schema": "org.gnome.shell.extensions.gtktitlebar",
   "gettext-domain": "gtktitlebar",
   "url": "https://github.com/velitasali/gtktitlebar",
