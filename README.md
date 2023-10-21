@@ -3,7 +3,7 @@
 - This extension simply removes title bars on apps like Spotify and Qt5 apps when you maximize or tile them.
 - Unlike Unite, this does not remove window buttons for GTK apps.
 - Makes the minimal change on your system's default behaviour.
-- Supports GNOME 3.28+ (40 included).
+- Supports GNOME 3.28+ up to 45.
 
 ## Credits
 

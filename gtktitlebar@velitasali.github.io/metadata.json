@@ -1,5 +1,5 @@
 {
-  "shell-version": ["40", "41", "42", "43", "44"],
+  "shell-version": ["40", "41", "42", "43", "44", "45"],
   "name": "GTK Title Bar",
   "description": "Remove title bars for non-GTK apps with minimal interference with the default workflow",
   "version": 12,
