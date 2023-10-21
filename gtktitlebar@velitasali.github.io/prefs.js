@@ -1,23 +1,10 @@
-const {Gio, GObject, Gtk} = imports.gi
-const ExtensionUtils = imports.misc.extensionUtils
-const Me = ExtensionUtils.getCurrentExtension()
+import Gio from 'gi://Gio'
+import Gtk from 'gi://Gtk'
+import { ExtensionPreferences } from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 
-const PrefsWidget = GObject.registerClass({
-  GTypeName: 'PrefsWidget',
-  Template: Me.dir.get_child('prefs.ui').get_uri(),
-  InternalChildren: [
-    'restrict_to_primary_screen',
-    'hide_when_maximized',
-    'hide_when_tiled',
-    'hide_when_both',
-    'hide_always',
-  ]
-}, class GTKTitleBarPrefsWidget extends Gtk.Box {
-
-  _init(params = {}) {
-    super._init(params)
-      
-    this.settings = ExtensionUtils.getSettings("org.gnome.shell.extensions.gtktitlebar")
+export default class GtkTileBarExtensionPreferences extends ExtensionPreferences {
+  fillPreferencesWindow(window) {
+    this.settings = this.getSettings()
       
     this.settings.bind(
       'restrict-to-primary-screen',
@@ -26,50 +13,44 @@ const PrefsWidget = GObject.registerClass({
       Gio.SettingsBindFlags.DEFAULT
     )
     
-    let hidingStrategy = this.settings.get_string('hide-window-titlebars')
-    let hidingStrategyButtons = [
+    const hidingStrategy = this.settings.get_string('hide-window-titlebars')
+    const hidingStrategyButtons = [
       this._hide_when_maximized,
       this._hide_when_tiled,
       this._hide_when_both,
       this._hide_always ,
     ]
     
-    hidingStrategyButtons.forEach((button) => {
-      if (hidingStrategy == button.get_name()) {
+    for (const button of hidingStrategyButtons) {
+      if (hidingStrategy === button.get_name()) {
         button.active = true
         return false
       }
-    })
-  }
- 
-  _onBarVisibilityButton(visibilityButton)  {
-    if (!visibilityButton.active) return 
-    
-    var newSetting = -1
-    
-    switch (visibilityButton.get_name()) {
-      case 'maximized':
-        newSetting = 0
-        break
-      case 'tiled':
-        newSetting = 1
-        break
-      case 'both':
-        newSetting = 2
-        break
-      case 'always':
-        newSetting = 3
-        break
     }
-    
-    this.settings.set_enum("hide-window-titlebars", newSetting)
+
+
+    const builder = new Gtk.Builder();
+    builder.add_from_file('./prefs.ui');
+
+    const mainWidget = builder.get_object('main_widget');
+    this.add(mainWidget);
+
+    const restrictToPrimaryScreenSwitch = builder.get_object('restrict_to_primary_screen_switch')
+    const hideWindowTitlebarsComboBox = builder.get_object('hide_window_titlebars_combo_box')
+
+    this.settings.bind('restrict-to-primary-screen', restrictToPrimaryScreenSwitch, 'active', Gio.SettingsBindFlags.DEFAULT)
+    this.settings.bind('hide-window-titlebars', hideWindowTitlebarsComboBox, 'active-id', Gio.SettingsBindFlags.DEFAULT)
+
+    builder.connect_signals({
+      _onBarVisibilityButton: this._onBarVisibilityButton.bind(this),
+    });
   }
-})
 
-function init() {
-  ExtensionUtils.initTranslations('gtktitlebar')
-}
-
-function buildPrefsWidget() {
-  return new PrefsWidget()
+  _onBarVisibilityButton(visibilityButton)  {
+    if (visibilityButton.active) {
+      const name = visibilityButton.get_name()
+      const newSetting = ['maximized', 'tiled', 'both', 'always'].indexOf(name)
+      this.settings.set_enum("hide-window-titlebars", newSetting)
+    }
+  }
 }

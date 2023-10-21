@@ -1,17 +1,17 @@
-const GObject = imports.gi.GObject
-const Main = imports.ui.main
-const ExtensionUtils = imports.misc.extensionUtils
-const Me = ExtensionUtils.getCurrentExtension()
-const WindowManager = Me.imports.window.WindowManager
+import { WindowManager } from './window.js'
+import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js'
 
-var windowManager = null 
+export default class GtkTileBarExtension extends Extension {
+  windowManager = null 
 
-function enable() {
-  windowManager = new WindowManager()
-  windowManager.activate()
-}
+  enable() {
+    const settings = this.getSettings()
+    this.windowManager = new WindowManager(settings)
+    this.windowManager.activate()
+  }
 
-function disable() {
-  windowManager.destroy()
-  windowManager = null
+  disable() {
+    this.windowManager.destroy()
+    this.windowManager = null
+  }
 }
